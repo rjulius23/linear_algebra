@@ -1,12 +1,16 @@
 import numpy
-
+from math import pi
+# from decimal import Decimal, getcontext
 
 class Vector(object):
+
+    CANNOT_NORMALIZE_ZERO_VECTOR = "Cannot normalize a zero vector!"
+
     def __init__(self, coordinates):
         try:
             if not coordinates:
                 raise ValueError
-            self.coordinates = tuple(coordinates)
+            self.coordinates = tuple([x for x in coordinates])
             self.dimension = len(coordinates)
 
         except ValueError:
@@ -41,4 +45,25 @@ class Vector(object):
             magnitude = self.magnitude()
             return 1./magnitude * self
         except ZeroDivisionError:
-            print("Cannot divide ZERO vector!!!")
+            raise Exception(self.CANNOT_NORMALIZE_ZERO_VECTOR)
+
+    def dot_product(self, v):
+        temp = Vector([x*y for x, y in zip(self.coordinates, v.coordinates)])
+        return sum(temp.coordinates)
+
+    def angle_with(self, w, in_degrees = False):
+        try:
+            uv = self.normalize()
+            uw = w.normalize()
+            vdotw = uv.dot_product(uw)
+            angle_in_rad = numpy.arccos(vdotw)
+            if in_degrees:
+                deg_per_rad = 180. / pi
+                return angle_in_rad * deg_per_rad
+            else:
+                return angle_in_rad
+        except Exception as e:
+            if str(e) == self.CANNOT_NORMALIZE_ZERO_VECTOR:
+                print("One of the vectors is a ZERO vector! Cant calc angle!")
+            else:
+                raise e
