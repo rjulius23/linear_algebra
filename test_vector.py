@@ -1,5 +1,6 @@
 from vector import Vector as V
 
+
 def quiz8():
     v1 = V([7.887, 4.138])
     w1 = V([-8.802, 6.776])
@@ -54,6 +55,32 @@ def quiz10():
         print("v4 is parallel with w4")
 
 
+def quiz12():
+    v1 = V([3.039, 1.879])
+    b1 = V([0.825, 2.036])
+
+    v2 = V([-9.88, -3.264, -8.159])
+    b2 = V([-2.155, -9.353, -9.473])
+
+    v3 = V([3.009, -6.172, 3.692, -2.51])
+    b3 = V([6.404, -9.144, 2.759, 8.718])
+
+    print("Proj_b1 of v1 aka v1 parralel component:")
+    print(v1.component_parallel_to(b1))
+
+    print("v2 orthogonal component:")
+    print(v2.component_orthogonal_to(b2))
+
+    proj_b_v3 = v3.component_parallel_to(b3)
+    print("v3 parallel component")
+    print(proj_b_v3)
+
+    orthogonal_v3 = v3.component_orthogonal_to(b3)
+    print("v3 orthogonal component:")
+    print(orthogonal_v3)
+
+
 if __name__ == "__main__":
-    #quiz8()
-    quiz10()
+    # quiz8()
+    # quiz10()
+    quiz12()

@@ -3,9 +3,12 @@ import math
 from math import pi
 from decimal import Decimal, getcontext
 
+
 class Vector(object):
 
-    CANNOT_NORMALIZE_ZERO_VECTOR = "Cannot normalize a zero vector!"
+    CANNOT_NORMALIZE_ZERO_VECTOR = "Cannot normalized a zero vector!"
+    NO_UNIQUE_PARALLEL_COMPONENT = "No unique parallel component of this vector!"
+    NO_UNIQUE_ORTHOGONAL_COMPONENT = "No unique orthogonal component of this vector!"
 
     def __init__(self, coordinates):
         try:
@@ -13,7 +16,7 @@ class Vector(object):
                 raise ValueError
             # TODO: Introduce tolerance instead of rounding the values as this is
             # a limitation for now
-            self.coordinates = tuple([round(Decimal(x), 3) for x in coordinates])
+            self.coordinates = tuple([Decimal(x) for x in coordinates])
             self.dimension = len(coordinates)
 
         except ValueError:
@@ -32,7 +35,7 @@ class Vector(object):
         return Vector([x+y for x, y in zip(self.coordinates, v.coordinates)])
 
     def __sub__(self, v):
-        return Vector([numpy.subtract(self.coordinates, v.coordinates)])
+        return Vector([x-y for x, y in zip(self.coordinates, v.coordinates)])
 
     def __mul__(self, scalar):
         return Vector([Decimal(scalar) * x for x in self.coordinates])
@@ -41,11 +44,11 @@ class Vector(object):
         return self * scalar
 
     def magnitude(self):
-        sum = Decimal(numpy.sum([x * x for x in self.coordinates]))
-        magnitude = Decimal(numpy.sqrt(sum))
+        sum_m = Decimal(numpy.sum([x * x for x in self.coordinates]))
+        magnitude = Decimal(numpy.sqrt(sum_m))
         return magnitude
 
-    def normalize(self):
+    def normalized(self):
         try:
             magnitude = self.magnitude()
             return Decimal('1.0')/magnitude * self
@@ -58,8 +61,8 @@ class Vector(object):
 
     def angle_with(self, w, in_degrees=False):
         try:
-            uv = self.normalize()
-            uw = w.normalize()
+            uv = self.normalized()
+            uw = w.normalized()
             vdotw = uv.dot_product(uw)
             # numpy.arccos didnt work with Decimal, so changed to math.acos
             angle_in_rad = math.acos(vdotw)
@@ -73,6 +76,7 @@ class Vector(object):
                 print("One of the vectors is a ZERO vector! Cant calc angle!")
             else:
                 raise e
+
     # TODO: Introudce tolerance
     def is_parallel(self, w):
         if self.dimension != w.dimension:
@@ -80,7 +84,7 @@ class Vector(object):
         for i in range(self.dimension):
             # Case of different values
             if self.coordinates[i] != 0 and w.coordinates[i] != 0:
-                scalar = round(self.coordinates[i], 3) / round(w.coordinates[i], 3)
+                scalar = self.coordinates[i] / w.coordinates[i]
                 if scalar * w == self:
                     return True
                 else:
@@ -100,3 +104,23 @@ class Vector(object):
             return True
         else:
             return False
+
+    def component_parallel_to(self, basis):
+        try:
+            u = basis.normalized()
+            dotp = self.dot_product(u)
+            return dotp * u
+        except Exception as e:
+            if str(e) == self.CANNOT_NORMALIZE_ZERO_VECTOR:
+                raise Exception(self.NO_UNIQUE_PARALLEL_COMPONENT)
+            else:
+                raise e
+    
+    def component_orthogonal_to(self, basis):
+        try:
+            return self - self.component_parallel_to(basis)
+        except Exception as e:
+            if str(e) == self.NO_UNIQUE_PARALLEL_COMPONENT:
+                raise Exception(self.NO_UNIQUE_ORTHOGONAL_COMPONENT)
+            else:
+                raise e
