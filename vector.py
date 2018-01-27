@@ -1,6 +1,7 @@
 import numpy
+import math
 from math import pi
-# from decimal import Decimal, getcontext
+from decimal import Decimal, getcontext
 
 class Vector(object):
 
@@ -10,7 +11,9 @@ class Vector(object):
         try:
             if not coordinates:
                 raise ValueError
-            self.coordinates = tuple([x for x in coordinates])
+            # TODO: Introduce tolerance instead of rounding the values as this is
+            # a limitation for now
+            self.coordinates = tuple([round(Decimal(x), 3) for x in coordinates])
             self.dimension = len(coordinates)
 
         except ValueError:
@@ -32,31 +35,34 @@ class Vector(object):
         return Vector([numpy.subtract(self.coordinates, v.coordinates)])
 
     def __mul__(self, scalar):
-        return Vector([scalar * x for x in self.coordinates])
+        return Vector([Decimal(scalar) * x for x in self.coordinates])
 
     def __rmul__(self, scalar):
         return self * scalar
 
     def magnitude(self):
-        return numpy.round(numpy.sqrt(numpy.sum([x*x for x in self.coordinates])),3)
+        sum = Decimal(numpy.sum([x * x for x in self.coordinates]))
+        magnitude = Decimal(numpy.sqrt(sum))
+        return magnitude
 
     def normalize(self):
         try:
             magnitude = self.magnitude()
-            return 1./magnitude * self
+            return Decimal('1.0')/magnitude * self
         except ZeroDivisionError:
             raise Exception(self.CANNOT_NORMALIZE_ZERO_VECTOR)
 
     def dot_product(self, v):
         temp = Vector([x*y for x, y in zip(self.coordinates, v.coordinates)])
-        return sum(temp.coordinates)
+        return numpy.sum(temp.coordinates)
 
-    def angle_with(self, w, in_degrees = False):
+    def angle_with(self, w, in_degrees=False):
         try:
             uv = self.normalize()
             uw = w.normalize()
             vdotw = uv.dot_product(uw)
-            angle_in_rad = numpy.arccos(vdotw)
+            # numpy.arccos didnt work with Decimal, so changed to math.acos
+            angle_in_rad = math.acos(vdotw)
             if in_degrees:
                 deg_per_rad = 180. / pi
                 return angle_in_rad * deg_per_rad
@@ -67,3 +73,30 @@ class Vector(object):
                 print("One of the vectors is a ZERO vector! Cant calc angle!")
             else:
                 raise e
+    # TODO: Introudce tolerance
+    def is_parallel(self, w):
+        if self.dimension != w.dimension:
+            return False
+        for i in range(self.dimension):
+            # Case of different values
+            if self.coordinates[i] != 0 and w.coordinates[i] != 0:
+                scalar = round(self.coordinates[i], 3) / round(w.coordinates[i], 3)
+                if scalar * w == self:
+                    return True
+                else:
+                    return False
+            # Case if one of them is a zero vector
+            elif self.magnitude() == 0 or w.magnitude() == 0:
+                return True
+            else:
+                continue
+
+        return False
+
+    def is_orthogonal(self, w):
+        if self.dimension != w.dimension:
+            return False
+        if self.dot_product(w) == 0:
+            return True
+        else:
+            return False
