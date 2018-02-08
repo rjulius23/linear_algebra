@@ -80,7 +80,30 @@ def quiz12():
     print(orthogonal_v3)
 
 
+def quiz14():
+    try:
+        v1 = V([8.462, 7.893, -8.187])
+        b1 = V([6.984, -5.975, 4.778])
+
+        v2 = V([-8.987, -9.838, 5.031])
+        b2 = V([-4.268, -1.861, -8.866])
+
+        v3 = V([1.5, 9.547, 3.691])
+        b3 = V([-6.007, 0.124, 5.772])
+
+        print("Cross prod of v1 and b1:")
+        print(v1.cross_product_with(b1))
+
+        print("area of paralelogram:")
+        print(v2.area_of_paralelogram_with(b2))
+
+        print("area of triangle:")
+        print(v3.area_of_triangle_with(b3))
+    except Exception as e:
+        print(e)
+
 if __name__ == "__main__":
     # quiz8()
     # quiz10()
-    quiz12()
+    # quiz12()
+    quiz14()

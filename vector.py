@@ -124,3 +124,25 @@ class Vector(object):
                 raise Exception(self.NO_UNIQUE_ORTHOGONAL_COMPONENT)
             else:
                 raise e
+
+    def cross_product_with(self, w):
+        i_coord = self.coordinates[1] * w.coordinates[2] - self.coordinates[2] * \
+                  w.coordinates[1]
+        j_coord = - (self.coordinates[0] * w.coordinates[2] - self.coordinates[2] *
+                     w.coordinates[0])
+        k_coord = self.coordinates[0] * w.coordinates[1] - self.coordinates[1] * \
+            w.coordinates[0]
+        cross_prod = Vector([i_coord, j_coord, k_coord])
+        # TODO: ValueError handling if the vectors are not in 3D
+        # if self.dot_product(cross_prod) != 0 or w.dot_product(cross_prod) != 0:
+        #    raise Exception("Not correct cross product!")
+        # else:
+        #    return cross_prod
+        return cross_prod
+
+    def area_of_paralelogram_with(self, w):
+        m = self.cross_product_with(w)
+        return m.magnitude()
+
+    def area_of_triangle_with(self, w):
+        return Decimal ("0.5") * self.area_of_paralelogram_with(w)
