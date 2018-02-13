@@ -43,6 +43,12 @@ class Vector(object):
     def __rmul__(self, scalar):
         return self * scalar
 
+    def __iter__(self):
+        return iter(self.coordinates)
+
+    def __getitem__(self, key):
+        return self.coordinates[key]
+
     def magnitude(self):
         sum_m = Decimal(numpy.sum([x * x for x in self.coordinates]))
         magnitude = Decimal(numpy.sqrt(sum_m))
